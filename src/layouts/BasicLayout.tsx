@@ -9,7 +9,7 @@ import ProLayout, {
   Settings,
   DefaultFooter,
 } from '@ant-design/pro-layout';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Link, connect, Dispatch, history } from 'umi';
 import { Result, Button } from 'antd';
 import Authorized from '@/utils/Authorized';
@@ -17,12 +17,7 @@ import RightContent from '@/components/GlobalHeader/RightContent';
 import { ConnectState } from '@/models/connect';
 import { getMatchMenu } from '@umijs/route-utils';
 import logo from '../assets/logo.svg';
-import routerData from './dataRoutes'
-import { createFromIconfontCN } from '@ant-design/icons';
 
-const IconFont = createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/font_8d5l8fzk5b87iudi.js',
-});
 const noMatch = (
   <Result
     status={ 403 }
@@ -54,18 +49,14 @@ export type BasicLayoutContext = { [ K in 'location' ]: BasicLayoutProps[ K ] } 
 /**
  * use Authorized check all menu item
  */
-const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] => {
-  return menuList.map((item) => {
+const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] =>
+  menuList.map((item) => {
     const localItem = {
       ...item,
-      icon: item.icon ? <IconFont type={ `icon-${item.icon}` } /> : undefined,
       children: item.children ? menuDataRender(item.children) : undefined,
     };
     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
   });
-}
-
-const menuData = menuDataRender(routerData)
 
 const defaultFooterDom = (
   <DefaultFooter
@@ -113,7 +104,6 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
   );
   return (
     <ProLayout
-      menuDataRender={ () => menuData }
       logo={ logo }
       { ...props }
       { ...settings }
@@ -141,6 +131,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = (props) => {
           );
       } }
       footerRender={ () => defaultFooterDom }
+      menuDataRender={ menuDataRender }
       rightContentRender={ () => <RightContent /> }
       postMenuData={ (menuData) => {
         menuDataRef.current = menuData || [];
